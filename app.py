@@ -43,7 +43,7 @@ if selected_hole_size:
     filtered_df = filtered_df[df['Suit Hole ø (mm)'].astype(str) == selected_hole_size]
 
 # Display results
-st.title("📎 Matching Body Clips")
+st.title("Body Clip Finder")
 
 for _, row in filtered_df.iterrows():
     st.markdown(f'''
