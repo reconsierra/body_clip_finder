@@ -14,23 +14,39 @@ df['OEM Combined'] = df[oem_columns].fillna('').astype(str).agg(' '.join, axis=1
 
 # Sidebar filters with clear labels
 st.sidebar.header("🔍 Search and Filter Clips")
-search_text = st.sidebar.text_input("Search by Keyword")
-selected_colour = st.sidebar.selectbox("Filter by Colour", [""] + sorted(df['Colour'].dropna().unique().tolist()))
-selected_clip_type = st.sidebar.selectbox("Filter by Clip Type", [""] + sorted(df['Clip Type'].dropna().unique().tolist()))
-selected_hole_size = st.sidebar.selectbox("Filter by Hole Size", [""] + sorted(df['Suit Hole ø (mm)'].dropna().astype(str).unique().tolist()))
 
-# NEW: OEM Name dropdown
+# Initialise session state for filters
+if "search_text" not in st.session_state:
+    st.session_state.search_text = ""
+if "selected_colour" not in st.session_state:
+    st.session_state.selected_colour = ""
+if "selected_clip_type" not in st.session_state:
+    st.session_state.selected_clip_type = ""
+if "selected_hole_size" not in st.session_state:
+    st.session_state.selected_hole_size = ""
+if "selected_oem" not in st.session_state:
+    st.session_state.selected_oem = ""
+
+# Input widgets
+st.session_state.search_text = st.sidebar.text_input("Search by Keyword", value=st.session_state.search_text)
+st.session_state.selected_colour = st.sidebar.selectbox("Filter by Colour", [""] + sorted(df['Colour'].dropna().unique()), index=0)
+st.session_state.selected_clip_type = st.sidebar.selectbox("Filter by Clip Type", [""] + sorted(df['Clip Type'].dropna().unique()), index=0)
+st.session_state.selected_hole_size = st.sidebar.selectbox("Filter by Hole Size", [""] + sorted(df['Suit Hole ø (mm)'].dropna().astype(str).unique()), index=0)
+
+# OEM dropdown
 oem_names = pd.unique(df[oem_columns].values.ravel('K'))
 oem_names = sorted([oem for oem in oem_names if pd.notna(oem)])
-selected_oem = st.sidebar.selectbox("Filter by OEM Name", [""] + oem_names)
+st.session_state.selected_oem = st.sidebar.selectbox("Filter by OEM Name", [""] + oem_names, index=0)
 
 # Clear All button
 if st.sidebar.button("Clear All"):
-    search_text = ""
-    selected_colour = ""
-    selected_clip_type = ""
-    selected_hole_size = ""
-    selected_oem = ""
+    st.session_state.search_text = ""
+    st.session_state.selected_colour = ""
+    st.session_state.selected_clip_type = ""
+    st.session_state.selected_hole_size = ""
+    st.session_state.selected_oem = ""
+    st.experimental_rerun()
+
 
 # Filter logic
 filtered_df = df.copy()
