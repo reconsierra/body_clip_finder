@@ -19,12 +19,18 @@ selected_colour = st.sidebar.selectbox("Filter by Colour", [""] + sorted(df['Col
 selected_clip_type = st.sidebar.selectbox("Filter by Clip Type", [""] + sorted(df['Clip Type'].dropna().unique().tolist()))
 selected_hole_size = st.sidebar.selectbox("Filter by Hole Size", [""] + sorted(df['Suit Hole ø (mm)'].dropna().astype(str).unique().tolist()))
 
+# NEW: OEM Name dropdown
+oem_names = pd.unique(df[oem_columns].values.ravel('K'))
+oem_names = sorted([oem for oem in oem_names if pd.notna(oem)])
+selected_oem = st.sidebar.selectbox("Filter by OEM Name", [""] + oem_names)
+
 # Clear All button
 if st.sidebar.button("Clear All"):
     search_text = ""
     selected_colour = ""
     selected_clip_type = ""
     selected_hole_size = ""
+    selected_oem = ""
 
 # Filter logic
 filtered_df = df.copy()
@@ -42,8 +48,11 @@ if selected_clip_type:
 if selected_hole_size:
     filtered_df = filtered_df[df['Suit Hole ø (mm)'].astype(str) == selected_hole_size]
 
+if selected_oem:
+    filtered_df = filtered_df[df[oem_columns].apply(lambda row: selected_oem in row.values, axis=1)]
+
 # Display results
-st.title("Body Clip Finder")
+st.title(f"Body Clip Finder ({len(filtered_df)})")
 
 for _, row in filtered_df.iterrows():
     st.markdown(f'''
